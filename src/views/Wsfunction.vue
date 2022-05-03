@@ -90,7 +90,8 @@ export default {
     },
     mounted:function(){
         console.log(this.$store.state.socket)
-        this.$store.state.socket.emit('wsfunction',2)
+        this.$store.state.socket.emit('wsfunction',{organization:'funiber',id_custom_service: 2})
+        this.$store.state.socket.on('addFunction',(data)=>{console.log(data)})
     },
     watch:{
         options:{
