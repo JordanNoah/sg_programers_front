@@ -7,7 +7,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     data_base_name: null,
-    pageOpen: []
+    pageOpen: [],
+    socket:null
   },
   mutations: {
     database_connected(state, data_base_name) {
@@ -35,6 +36,12 @@ export default new Vuex.Store({
       }else{
         router.push({name:'home'})
       }
+    },
+    saveSocket(state,socket){
+      state.socket = socket
+    },
+    removeSocket(state){
+      state.socket = null
     }
   },
   actions: {},
