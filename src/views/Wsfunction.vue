@@ -88,6 +88,10 @@ export default {
             ],
         }
     },
+    mounted:function(){
+        console.log(this.$store.state.socket)
+        this.$store.state.socket.emit('wsfunction',2)
+    },
     watch:{
         options:{
             handler(){
