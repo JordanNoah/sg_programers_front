@@ -41,7 +41,41 @@
                 </span>
             </v-tooltip>
         </div>
-        <v-container>
+
+<v-stepper non-linear>
+      <v-stepper-header>
+        <v-stepper-step
+          editable
+          step="1"
+        >
+          Select campaign settings
+        </v-stepper-step>
+
+        <v-divider></v-divider>
+
+        <v-stepper-step
+          editable
+          step="2"
+        >
+          Create an ad group
+        </v-stepper-step>
+
+        <v-divider></v-divider>
+
+        <v-stepper-step
+          step="3"
+          editable
+        >
+          Create an ad
+        </v-stepper-step>
+      </v-stepper-header>
+      <v-stepper-items>
+                  <v-stepper-content
+          v-for="n in steps"
+          :key="`${n}-content`"
+          :step="n"
+        >
+          <v-container>
             <v-text-field v-model="search_service" clearable prepend-inner-icon="fab fa-searchengin" outlined dense></v-text-field>
             <v-data-table :headers="headers" :items="services" :search="search_service" :options.sync="options" 
             :loading="loading" class="elevation-1">
@@ -63,6 +97,20 @@
             </template>
             </v-data-table>
         </v-container>
+
+          <v-btn
+            color="primary"
+            @click="nextStep(n)"
+          >
+            Continue
+          </v-btn>
+
+          <v-btn text>
+            Cancel
+          </v-btn>
+        </v-stepper-content>
+      </v-stepper-items>
+    </v-stepper>
     </v-container>
 </template>
 
@@ -74,6 +122,8 @@ export default {
             database_name: '',
             options: {},
             search_service:'',
+            e1: 1,
+            steps: 2,
             services: [],
             loading: false,
             headers: [
@@ -102,6 +152,23 @@ export default {
         }
     },
     methods: {
+        watch: {
+      steps (val) {
+        if (this.e1 > val) {
+          this.e1 = val
+        }
+      },
+    },
+
+    methods: {
+      nextStep (n) {
+        if (n === this.steps) {
+          this.e1 = 1
+        } else {
+          this.e1 = n + 1
+        }
+      },
+    },  
         async connectDatabase() {
             if (this.database_name.length != 0) {
                 var body = new Object();
