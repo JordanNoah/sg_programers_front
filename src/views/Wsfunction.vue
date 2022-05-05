@@ -56,8 +56,8 @@
                 </v-tooltip>
             </div>
         </div>
-        <div>
-            <v-simple-table fixed-header height="300px">
+        <div class="my-2">
+            <v-simple-table fixed-header>
                 <template v-slot:default>
                     <thead>
                         <tr>
@@ -70,7 +70,7 @@
                     <tbody>
                         <tr v-for="item in desserts" :key="item.name">
                             <td>{{ item.name }}</td>
-                            <td @click="changeFunction()">
+                            <td @click="changeFunction(item)">
                                 <v-btn text small>
                                     View
                                 </v-btn>
@@ -79,6 +79,31 @@
                     </tbody>
                 </template>
             </v-simple-table>
+        </div>
+        <div>
+            <div class="d-flex justify-center align-center">
+                <v-text-field v-model="search_service" clearable prepend-inner-icon="fab fa-searchengin" outlined dense hide-details></v-text-field>
+                <v-btn small class="mx-1" depressed text @click="activateAll()">Activar todo</v-btn>
+            </div>
+        <v-data-table :headers="headers" :items="services" :search="search_service" :options.sync="options" 
+          :loading="loading" class="elevation-1">
+          <template v-slot:[`item.activate`]="{ item }">
+            <div v-if="item.activate">
+              <v-btn icon @click="change_service(item)" color="green">
+                <v-icon>
+                  fas fa-check-circle
+                </v-icon>
+              </v-btn>
+            </div>
+            <div v-else>
+              <v-btn icon @click="change_service(item)" color="red">
+                <v-icon>
+                  fas fa-times-circle
+                </v-icon>
+              </v-btn>
+            </div>
+          </template>
+          </v-data-table>
         </div>
     </v-container>
 </template>
@@ -125,60 +150,17 @@
                         disabled: true
                     },
                 ],
-                desserts: [
-          {
-            name: 'Frozen Yogurt',
-            calories: 159,
-          },
-          {
-            name: 'Ice cream sandwich',
-            calories: 237,
-          },
-          {
-            name: 'Eclair',
-            calories: 262,
-          },
-          {
-            name: 'Cupcake',
-            calories: 305,
-          },
-          {
-            name: 'Gingerbread',
-            calories: 356,
-          },
-          {
-            name: 'Jelly bean',
-            calories: 375,
-          },
-          {
-            name: 'Lollipop',
-            calories: 392,
-          },
-          {
-            name: 'Honeycomb',
-            calories: 408,
-          },
-          {
-            name: 'Donut',
-            calories: 452,
-          },
-          {
-            name: 'KitKat',
-            calories: 518,
-          },
-        ],
+                functionSelected : null,
+                desserts: []
             }
         },
         mounted: function () {
             axios.get("http://192.168.0.79:3001/organization").then((res)=>{this.databases=res.data})
-            console.log(this.$store.state.socket)
             this.$store.state.socket.emit('wsfunction', {
                 organization: 'funiber',
                 id_custom_service: 2
             })
-            this.$store.state.socket.on('addFunction', (data) => {
-                console.log(data)
-            })
+            this.$store.state.socket.on('addFunction', () => {return})
         },
         watch: {
             options: {
@@ -206,25 +188,26 @@
                 var body = new Object();
                 body.database = this.database;
                 var response = await axios.post('http://192.168.0.79:3001/getFuntionList', body);
-                console.log(response);
+                this.desserts = response.data;
+                
             },
             discconectDatabase() {
                 this.database = '';
                 this.services = [];
                 this.$store.commit('database_disconnected');
             },
-            changeFunction(){
-                console.log("changing");
+            changeFunction(item){
+                this.functionSelected = item
+                this.getDataFromApi()
             },
             getDataFromApi() {
-                if (this.database.length != 0) {
+                if (this.functionSelected != null) {
                     this.loading = true
                     var options = JSON.stringify(this.options)
                     var body = new Object()
                     body.options = options
-                    body.id = 2
+                    body.id = this.functionSelected.id
                     body.database = this.database
-                    console.log(body)
                     axios.post(`http://192.168.0.79:3001/get_all_result`, body).then((response) => {
                         this.services = response.data
                         this.totalServices = response.data.length
@@ -241,14 +224,23 @@
                     url = "add_mdl_external_services_functions";
                 }
                 body.functionname = item.name
-                body.externalserviceid = 2;
+                body.externalserviceid = this.functionSelected.id;
                 body.database = this.database
-                axios.post(`http://192.168.0.79:3002/api/${url}`, body).then((response) => {
+                console.log(body);
+                axios.post(`http://192.168.0.79:3001/${url}`, body).then((response) => {
                     if (response.data) {
                         this.getDataFromApi()
                     }
                 });
             },
+            activateAll(){
+                var body = new Object()
+                body.externalserviceid = this.functionSelected.id;
+                body.database = this.database
+                axios.post('http://192.168.0.79:3001/activate_all_mdl_external_services_functions',body).then((response)=>{
+                    console.log(response);
+                });
+            }
         }
     }
 </script>
