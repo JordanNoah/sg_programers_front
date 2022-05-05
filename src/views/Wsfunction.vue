@@ -25,7 +25,8 @@
                         </v-btn>
                     </template>
                     <v-card>
-                        <v-select v-model="database" return-object outlined dense hide-details :items="databases" item-text="name" item-value="id" @change="changeDataBase"></v-select>
+                        <v-select v-model="database" return-object outlined dense hide-details :items="databases"
+                            item-text="name" item-value="id" @change="changeDataBase"></v-select>
                     </v-card>
                 </v-menu>
 
@@ -50,10 +51,34 @@
                         </v-btn>
                     </template>
                     <span>
-                        {{database}}
+                        {{$store.state.data_base_name.name}}
                     </span>
                 </v-tooltip>
             </div>
+        </div>
+        <div>
+            <v-simple-table fixed-header height="300px">
+                <template v-slot:default>
+                    <thead>
+                        <tr>
+                            <th class="text-left">
+                                External service
+                            </th>
+                            <th class="text-left"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in desserts" :key="item.name">
+                            <td>{{ item.name }}</td>
+                            <td @click="changeFunction()">
+                                <v-btn text small>
+                                    View
+                                </v-btn>
+                            </td>
+                        </tr>
+                    </tbody>
+                </template>
+            </v-simple-table>
         </div>
     </v-container>
 </template>
@@ -100,6 +125,48 @@
                         disabled: true
                     },
                 ],
+                desserts: [
+          {
+            name: 'Frozen Yogurt',
+            calories: 159,
+          },
+          {
+            name: 'Ice cream sandwich',
+            calories: 237,
+          },
+          {
+            name: 'Eclair',
+            calories: 262,
+          },
+          {
+            name: 'Cupcake',
+            calories: 305,
+          },
+          {
+            name: 'Gingerbread',
+            calories: 356,
+          },
+          {
+            name: 'Jelly bean',
+            calories: 375,
+          },
+          {
+            name: 'Lollipop',
+            calories: 392,
+          },
+          {
+            name: 'Honeycomb',
+            calories: 408,
+          },
+          {
+            name: 'Donut',
+            calories: 452,
+          },
+          {
+            name: 'KitKat',
+            calories: 518,
+          },
+        ],
             }
         },
         mounted: function () {
@@ -123,26 +190,31 @@
         },
         methods: {
             async changeDataBase(){
-                console.log(this.database);
                 if (this.database != null) {
                     var body = new Object();
                     body.database = this.database;
                     var response = await axios.post('http://192.168.0.79:3001/check_database', body);
                     if (response.data == "connected") {
                         this.$store.commit('database_connected', this.database);
-                        this.getDataFromApi();
+                        this.getFuntionList();
                     } else {
                         this.$store.commit('database_disconnected');
                     }
                 }
             },
-            async connectDatabase() {
-                
+            async getFuntionList(){
+                var body = new Object();
+                body.database = this.database;
+                var response = await axios.post('http://192.168.0.79:3001/getFuntionList', body);
+                console.log(response);
             },
             discconectDatabase() {
                 this.database = '';
                 this.services = [];
                 this.$store.commit('database_disconnected');
+            },
+            changeFunction(){
+                console.log("changing");
             },
             getDataFromApi() {
                 if (this.database.length != 0) {
@@ -153,7 +225,7 @@
                     body.id = 2
                     body.database = this.database
                     console.log(body)
-                    axios.post(`http://192.168.0.79:3002/api/get_all_result`, body).then((response) => {
+                    axios.post(`http://192.168.0.79:3001/get_all_result`, body).then((response) => {
                         this.services = response.data
                         this.totalServices = response.data.length
                         this.loading = false
