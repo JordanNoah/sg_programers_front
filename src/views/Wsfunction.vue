@@ -193,6 +193,10 @@
                 // this.$store.state.socket.on('addFunction', (data) => {
                 //     console.log(data);
                 // })
+                var body = new Object()
+                body.database = this.database
+                body.function = this.functionSelected
+                this.$store.state.socket.emit('wsfunction',body)
                 this.getDataFromApi()
             },
             getDataFromApi() {
@@ -203,6 +207,7 @@
                     body.options = options
                     body.id = this.functionSelected.id
                     body.database = this.database
+                    body.socket = this.$store.state.socket.id
                     axios.post(`http://192.168.0.79:3001/get_all_result`, body).then((response) => {
                         console.log(response);
                         this.services = response.data
