@@ -146,7 +146,7 @@
         },
         mounted: function () {
             var body = new Object();
-            body.socket = this.$store.state.socket.id
+            // body.socket = this.$store.state.socket.id
             axios.post("http://192.168.0.79:3001/organization",body).then((res)=>{this.databases=res.data})
         },
         watch: {
@@ -186,13 +186,13 @@
             },
             changeFunction(item){
                 this.functionSelected = item
-                this.$store.state.socket.emit('wsfunction', {
-                    database: this.database.name,
-                    id_custom_service: this.functionSelected.id
-                })
-                this.$store.state.socket.on('addFunction', (data) => {
-                    console.log(data);
-                })
+                // this.$store.state.socket.emit('wsfunction', {
+                //     database: this.database.name,
+                //     id_custom_service: this.functionSelected.id
+                // })
+                // this.$store.state.socket.on('addFunction', (data) => {
+                //     console.log(data);
+                // })
                 this.getDataFromApi()
             },
             getDataFromApi() {

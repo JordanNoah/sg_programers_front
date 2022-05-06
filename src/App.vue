@@ -17,14 +17,14 @@
 </template>
 
 <script>
-import io from 'socket.io-client'
+// import io from 'socket.io-client'
 export default {
   data: () => ({
 
   }),
   beforeCreate:function(){
-    var socket = io("http://192.168.0.79:3000")
-    this.$store.commit('saveSocket',socket)
+    // var socket = io("http://192.168.0.79:3000")
+    // this.$store.commit('saveSocket',socket)
   },
   methods:{
     changePage(page){
