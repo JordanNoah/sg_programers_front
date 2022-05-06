@@ -56,7 +56,7 @@
                 </v-tooltip>
             </div>
         </div>
-        <div class="my-2">
+        <div class="my-2" v-if="$store.state.data_base_name != null">
             <v-simple-table fixed-header>
                 <template v-slot:default>
                     <thead>
@@ -68,7 +68,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in desserts" :key="item.name">
+                        <tr v-for="item in functions" :key="item.name">
                             <td>{{ item.name }}</td>
                             <td @click="changeFunction(item)">
                                 <v-btn text small>
@@ -80,30 +80,34 @@
                 </template>
             </v-simple-table>
         </div>
-        <div>
-            <div class="d-flex justify-center align-center">
-                <v-text-field v-model="search_service" clearable prepend-inner-icon="fab fa-searchengin" outlined dense hide-details></v-text-field>
-                <v-btn small class="mx-1" depressed text @click="activateAll()">Activar todo</v-btn>
+        <div v-show="$store.state.data_base_name != null && functionSelected != null">
+            <div class="d-flex justify-center align-center my-2">
+                <v-text-field v-model="search_service" clearable prepend-inner-icon="fab fa-searchengin" outlined dense
+                    hide-details></v-text-field>
+                <div class="d-flex flex-column mx-1">
+                    <v-btn small depressed text @click="activateAll()">Activar todo</v-btn>
+                    <v-btn small depressed text @click="desactivateAll()">Desactivar todo</v-btn>
+                </div>
             </div>
-        <v-data-table :headers="headers" :items="services" :search="search_service" :options.sync="options" 
-          :loading="loading" class="elevation-1">
-          <template v-slot:[`item.activate`]="{ item }">
-            <div v-if="item.activate">
-              <v-btn icon @click="change_service(item)" color="green">
-                <v-icon>
-                  fas fa-check-circle
-                </v-icon>
-              </v-btn>
-            </div>
-            <div v-else>
-              <v-btn icon @click="change_service(item)" color="red">
-                <v-icon>
-                  fas fa-times-circle
-                </v-icon>
-              </v-btn>
-            </div>
-          </template>
-          </v-data-table>
+            <v-data-table :headers="headers" :items="services" :search="search_service" :options.sync="options"
+                :loading="loading" class="elevation-1">
+                <template v-slot:[`item.activate`]="{ item }">
+                    <div v-if="item.activate">
+                        <v-btn icon @click="change_service(item)" color="green">
+                            <v-icon>
+                                fas fa-check-circle
+                            </v-icon>
+                        </v-btn>
+                    </div>
+                    <div v-else>
+                        <v-btn icon @click="change_service(item)" color="red">
+                            <v-icon>
+                                fas fa-times-circle
+                            </v-icon>
+                        </v-btn>
+                    </div>
+                </template>
+            </v-data-table>
         </div>
     </v-container>
 </template>
@@ -136,31 +140,14 @@
                         value: 'activate'
                     },
                 ],
-                items: [{
-                        text: 'Dashboard',
-                        disabled: false,
-                        href: 'breadcrumbs_dashboard'
-                    },
-                    {
-                        text: 'Link 1',
-                        disabled: false
-                    },
-                    {
-                        text: 'Link 2',
-                        disabled: true
-                    },
-                ],
                 functionSelected : null,
-                desserts: []
+                functions: []
             }
         },
         mounted: function () {
-            axios.get("http://192.168.0.79:3001/organization").then((res)=>{this.databases=res.data})
-            this.$store.state.socket.emit('wsfunction', {
-                organization: 'funiber',
-                id_custom_service: 2
-            })
-            this.$store.state.socket.on('addFunction', () => {return})
+            var body = new Object();
+            body.socket = this.$store.state.socket.id
+            axios.post("http://192.168.0.79:3001/organization",body).then((res)=>{this.databases=res.data})
         },
         watch: {
             options: {
@@ -188,16 +175,24 @@
                 var body = new Object();
                 body.database = this.database;
                 var response = await axios.post('http://192.168.0.79:3001/getFuntionList', body);
-                this.desserts = response.data;
+                this.functions = response.data;
                 
             },
             discconectDatabase() {
                 this.database = '';
                 this.services = [];
+                this.functionSelected = null;
                 this.$store.commit('database_disconnected');
             },
             changeFunction(item){
                 this.functionSelected = item
+                this.$store.state.socket.emit('wsfunction', {
+                    database: this.database.name,
+                    id_custom_service: this.functionSelected.id
+                })
+                this.$store.state.socket.on('addFunction', (data) => {
+                    console.log(data);
+                })
                 this.getDataFromApi()
             },
             getDataFromApi() {
@@ -209,6 +204,7 @@
                     body.id = this.functionSelected.id
                     body.database = this.database
                     axios.post(`http://192.168.0.79:3001/get_all_result`, body).then((response) => {
+                        console.log(response);
                         this.services = response.data
                         this.totalServices = response.data.length
                         this.loading = false
@@ -226,7 +222,6 @@
                 body.functionname = item.name
                 body.externalserviceid = this.functionSelected.id;
                 body.database = this.database
-                console.log(body);
                 axios.post(`http://192.168.0.79:3001/${url}`, body).then((response) => {
                     if (response.data) {
                         this.getDataFromApi()
@@ -238,8 +233,20 @@
                 body.externalserviceid = this.functionSelected.id;
                 body.database = this.database
                 axios.post('http://192.168.0.79:3001/activate_all_mdl_external_services_functions',body).then((response)=>{
-                    console.log(response);
+                    if(response.data){
+                        this.getDataFromApi()
+                    }
                 });
+            },
+            desactivateAll(){
+                var body = new Object()
+                body.externalserviceid = this.functionSelected.id;
+                body.database = this.database
+                axios.post('http://192.168.0.79:3001/desactivate_all_mdl_external_services_functions',body).then((response)=>{
+                    if (response.data) {
+                        this.getDataFromApi()
+                    }
+                })
             }
         }
     }
