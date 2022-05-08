@@ -1,19 +1,8 @@
 <template>
     <v-container fluid>
-        <div class="d-flex justify-space-between">
-            <div class="d-flex">
-                <div>
-                    <v-btn depressed small text> Organization </v-btn>
-                </div>/
-                <div>
-                    <v-btn depressed small text> Services </v-btn>
-                </div>/
-                <div>
-                    <v-btn depressed small text> Ws functions </v-btn>
-                </div>
-            </div>
+        <div class="d-flex justify-end">
             <div>
-                <v-menu offset-y v-if="$store.state.data_base_name == null" :close-on-content-click="false">
+                <v-menu offset-y v-if="$store.state.wsfunction_database_name == null" :close-on-content-click="false">
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn elevation="0" text class="d-flex" v-bind="attrs" v-on="on">
                             <v-icon>
@@ -25,12 +14,13 @@
                         </v-btn>
                     </template>
                     <v-card>
-                        <v-select v-model="database" return-object outlined dense hide-details :items="databases"
-                            item-text="name" item-value="id" @change="changeDataBase"></v-select>
+                        <v-select v-model="database" return-object outlined dense hide-details
+                            :items="$store.state.wsfunction_databases" item-text="name" item-value="id"
+                            @change="changeDataBase"></v-select>
                     </v-card>
                 </v-menu>
 
-                <v-btn elevation="0" disabled text v-else-if="$store.state.data_base_name == 'connecting'"
+                <v-btn elevation="0" disabled text v-else-if="$store.state.wsfunction_database_name == 'connecting'"
                     class="d-flex">
                     <v-icon>
                         mdi-database-clock
@@ -51,12 +41,12 @@
                         </v-btn>
                     </template>
                     <span>
-                        {{$store.state.data_base_name.name}}
+                        {{$store.state.wsfunction_database_name.name}}
                     </span>
                 </v-tooltip>
             </div>
         </div>
-        <div class="my-2" v-if="$store.state.data_base_name != null">
+        <div class="my-2" v-if="$store.state.wsfunction_database_name != null">
             <v-simple-table fixed-header>
                 <template v-slot:default>
                     <thead>
@@ -68,9 +58,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in functions" :key="item.name">
+                        <tr v-for="item in $store.state.wsfunction_external_services" :key="item.name">
                             <td>{{ item.name }}</td>
-                            <td @click="changeFunction(item)">
+                            <td @click="changeExternalService(item)">
                                 <v-btn text small>
                                     View
                                 </v-btn>
@@ -80,7 +70,8 @@
                 </template>
             </v-simple-table>
         </div>
-        <div v-show="$store.state.data_base_name != null && functionSelected != null">
+        <div
+            v-show="$store.state.wsfunction_database_name != null && $store.state.wsfunction_external_service_selected != null">
             <div class="d-flex justify-center align-center my-2">
                 <v-text-field v-model="search_service" clearable prepend-inner-icon="fab fa-searchengin" outlined dense
                     hide-details></v-text-field>
@@ -89,8 +80,8 @@
                     <v-btn small depressed text @click="desactivateAll()">Desactivar todo</v-btn>
                 </div>
             </div>
-            <v-data-table :headers="headers" :items="services" :search="search_service" :options.sync="options"
-                :loading="loading" class="elevation-1">
+            <v-data-table :headers="headers" :items="$store.state.wsfunction_external_functions"
+                :search="search_service" :options.sync="options" :loading="loading" class="elevation-1">
                 <template v-slot:[`item.activate`]="{ item }">
                     <div v-if="item.activate">
                         <v-btn icon @click="change_service(item)" color="green">
@@ -118,12 +109,8 @@
         data() {
             return {
                 database: null,
-                databases:[],
                 options: {},
                 search_service: '',
-                e1: 1,
-                steps: 2,
-                services: [],
                 loading: false,
                 headers: [{
                         text: 'Id',
@@ -139,15 +126,47 @@
                         text: 'Activate',
                         value: 'activate'
                     },
-                ],
-                functionSelected : null,
-                functions: []
+                ]
             }
         },
         mounted: function () {
-            var body = new Object();
-            // body.socket = this.$store.state.socket.id
-            axios.post("http://192.168.0.79:3001/organization",body).then((res)=>{this.databases=res.data})
+            axios.post("http://192.168.0.79:3001/organization").then((res) => {
+                this.$store.commit('wsfunction_databases_exist', res.data)
+            })
+            this.$store.state.socket.on('server:add_mdl_external_services_functions', (body) => {
+                const index = this.$store.state.wsfunction_external_functions.findIndex(object => {
+                    return object.name == body
+                });
+                this.$store.state.wsfunction_external_functions[index].activate = 1;
+            })
+            this.$store.state.socket.on('server:remove_mdl_external_services_functions', (body) => {
+                const index = this.$store.state.wsfunction_external_functions.findIndex(object => {
+                    return object.name == body
+                });
+                this.$store.state.wsfunction_external_functions[index].activate = 0;
+            })
+            this.$store.state.socket.on('server:activate_all_mdl_external_services_functions', (body) => {
+                if (body) {
+                    var newArray = this.$store.state.wsfunction_external_functions.map(obj => {
+                        return {
+                            ...obj,
+                            activate: 1
+                        }
+                    })
+                    this.$store.state.wsfunction_external_functions = newArray;
+                }
+            })
+            this.$store.state.socket.on('server:desactivate_all_mdl_external_services_functions', (body) => {
+                if (body) {
+                    var newArray = this.$store.state.wsfunction_external_functions.map(obj => {
+                        return {
+                            ...obj,
+                            activate: 0
+                        }
+                    })
+                    this.$store.state.wsfunction_external_functions = newArray;
+                }
+            })
         },
         watch: {
             options: {
@@ -158,7 +177,7 @@
             }
         },
         methods: {
-            async changeDataBase(){
+            async changeDataBase() {
                 if (this.database != null) {
                     var body = new Object();
                     body.database = this.database;
@@ -171,46 +190,35 @@
                     }
                 }
             },
-            async getFuntionList(){
+            async getFuntionList() {
                 var body = new Object();
-                body.database = this.database;
+                body.database = this.$store.state.wsfunction_database_name;
                 var response = await axios.post('http://192.168.0.79:3001/getFuntionList', body);
-                this.functions = response.data;
-                
+                this.$store.commit('recived_external_service', response.data)
+
             },
             discconectDatabase() {
-                this.database = '';
-                this.services = [];
-                this.functionSelected = null;
                 this.$store.commit('database_disconnected');
             },
-            changeFunction(item){
-                this.functionSelected = item
-                // this.$store.state.socket.emit('wsfunction', {
-                //     database: this.database.name,
-                //     id_custom_service: this.functionSelected.id
-                // })
-                // this.$store.state.socket.on('addFunction', (data) => {
-                //     console.log(data);
-                // })
+            changeExternalService(item) {
+                this.$store.commit('recived_external_service_selected', item)
                 var body = new Object()
-                body.database = this.database
-                body.function = this.functionSelected
-                this.$store.state.socket.emit('wsfunction',body)
+                body.database = this.$store.state.wsfunction_database_name
+                body.function = this.$store.state.wsfunction_external_service_selected
+                this.$store.state.socket.emit('wsfunction', body)
                 this.getDataFromApi()
             },
             getDataFromApi() {
-                if (this.functionSelected != null) {
+                if (this.$store.state.wsfunction_external_service_selected != null) {
                     this.loading = true
                     var options = JSON.stringify(this.options)
                     var body = new Object()
                     body.options = options
-                    body.id = this.functionSelected.id
-                    body.database = this.database
+                    body.id = this.$store.state.wsfunction_external_service_selected.id
+                    body.database = this.$store.state.wsfunction_database_name
                     body.socket = this.$store.state.socket.id
                     axios.post(`http://192.168.0.79:3001/get_all_result`, body).then((response) => {
-                        console.log(response);
-                        this.services = response.data
+                        this.$store.commit('recived_external_functions', response.data)
                         this.totalServices = response.data.length
                         this.loading = false
                     })
@@ -225,33 +233,24 @@
                     url = "add_mdl_external_services_functions";
                 }
                 body.functionname = item.name
-                body.externalserviceid = this.functionSelected.id;
-                body.database = this.database
-                axios.post(`http://192.168.0.79:3001/${url}`, body).then((response) => {
-                    if (response.data) {
-                        this.getDataFromApi()
-                    }
-                });
+                body.externalserviceid = this.$store.state.wsfunction_external_service_selected.id;
+                body.database = this.$store.state.wsfunction_database_name
+                body.function = this.$store.state.wsfunction_external_service_selected
+                this.$store.state.socket.emit(`client:${url}`, body)
             },
-            activateAll(){
+            activateAll() {
                 var body = new Object()
-                body.externalserviceid = this.functionSelected.id;
-                body.database = this.database
-                axios.post('http://192.168.0.79:3001/activate_all_mdl_external_services_functions',body).then((response)=>{
-                    if(response.data){
-                        this.getDataFromApi()
-                    }
-                });
+                body.externalserviceid = this.$store.state.wsfunction_external_service_selected.id;
+                body.database = this.$store.state.wsfunction_database_name
+                body.function = this.$store.state.wsfunction_external_service_selected
+                this.$store.state.socket.emit('client:activate_all_mdl_external_services_functions', body)
             },
-            desactivateAll(){
+            desactivateAll() {
                 var body = new Object()
-                body.externalserviceid = this.functionSelected.id;
-                body.database = this.database
-                axios.post('http://192.168.0.79:3001/desactivate_all_mdl_external_services_functions',body).then((response)=>{
-                    if (response.data) {
-                        this.getDataFromApi()
-                    }
-                })
+                body.externalserviceid = this.$store.state.wsfunction_external_service_selected.id;
+                body.database = this.$store.state.wsfunction_database_name
+                body.function = this.$store.state.wsfunction_external_service_selected
+                this.$store.state.socket.emit('client:desactivate_all_mdl_external_services_functions', body)
             }
         }
     }
