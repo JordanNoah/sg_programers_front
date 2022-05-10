@@ -28,6 +28,7 @@ import axios from 'axios'
     data () {
       return {
         headers: [
+          { text: 'Id', value: 'id'},
           { text: 'Attempts', value: 'attempts'},
           { text: 'Created at', value: 'created_at'},
           { text: 'Processed at', value: 'processed_at'},
