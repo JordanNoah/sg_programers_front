@@ -13,9 +13,16 @@ export default new Vuex.Store({
     wsfunction_database_name:null,
     wsfunction_external_services:null,
     wsfunction_external_service_selected:null,
-    wsfunction_external_functions:[]
+    wsfunction_external_functions:[],
+    altas_view_more_event_queue:null
   },
   mutations: {
+    altas_view_more_event_queue_selected(state,item){
+      state.altas_view_more_event_queue = item;
+    },
+    altas_view_more_event_queue_removed(state){
+      state.altas_view_more_event_queue = null
+    },
     wsfunction_databases_exist(state, databases){
       state.wsfunction_databases = databases
     },
