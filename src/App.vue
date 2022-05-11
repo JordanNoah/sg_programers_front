@@ -16,6 +16,14 @@
             </v-chip>
           </div>
           <div>
+            <v-btn icon small class="mx-2" @click="darkMode()">
+              <v-icon small v-if="!$vuetify.theme.dark">
+                fas fa-sun
+              </v-icon>
+              <v-icon small color="white" v-else>
+                fas fa-moon
+              </v-icon>
+            </v-btn>
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn icon small v-bind="attrs" v-on="on" :color="$store.state.socket.connected ? 'red' : ''" @click="socketChangeStatus()">
@@ -62,6 +70,9 @@ export default {
       }else{
         this.$store.state.socket.connect()
       }
+    },
+    darkMode(){
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark
     }
   }
 }

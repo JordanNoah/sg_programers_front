@@ -1,10 +1,26 @@
 <template>
     <v-dialog v-model="dialog" @click:outside="removeSelectedEvent()">
         <v-card>
-            <v-card-title class="text-h5 grey lighten-2">
-                Event queue id:{{eventqueue != null ? eventqueue.id : ''}}
+            <v-card-title class="text-h5 d-flex justify-space-between">
+                <div>
+                    Event queue id:{{eventqueue != null ? eventqueue.id : ''}}
+                </div>
+                <div>
+                    <v-tooltip left>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn small icon @click="reprocesar()" :color="reprocesing ? 'success':''" v-bind="attrs" v-on="on">
+                                <v-icon small :class="reprocesing ? 'fa-spin':''">
+                                    fas fa-sync
+                                </v-icon>
+                            </v-btn>
+                        </template>
+                        <span>
+                            {{reprocesing?'Reprocesando':'Reprocesar'}}
+                        </span>
+                    </v-tooltip>
+                </div>
             </v-card-title>
-
+            <v-divider></v-divider>
             <v-container fluid>
                 <v-row justify="space-between">
                     <v-col cols="6">
@@ -17,41 +33,43 @@
                             <p> Created at: {{ eventqueue != null ? transformDate(eventqueue.created_at) : ''}} </p>
                             <p> Updated at: {{ eventqueue != null ? transformDate(eventqueue.updated_at) : ''}} </p>
                             <v-textarea v-model="eventqueueRecivedData" filled label="Two rows" rows="3" single-line
-                                row-height="20"></v-textarea>
+                                row-height="20" hide-details></v-textarea>
                         </div>
                     </v-col>
                     <v-col cols="6">
-                        <v-simple-table dense>
-                            <template v-slot:default>
-                                <thead>
-                                    <tr>
-                                        <th class="text-left">
-                                            Id
-                                        </th>
-                                        <th class="text-left">
-                                            Status transaction catalog
-                                        </th>
-                                        <th class="text-left">
-                                            Create at
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="item in eventqueuelog" :key="item.id"
-                                        @click="watchMoreEventQueueLog(item)" style="cursor:pointer">
-                                        <td>{{ item.id }}</td>
-                                        <td>{{ item.status_transaction_catalog.name }}</td>
-                                        <td>{{ transformDate(item.created_at) }}</td>
-                                    </tr>
-                                </tbody>
-                            </template>
-                        </v-simple-table>
+                        <v-card height="100%" outlined elevation="0">
+                            <v-simple-table dense>
+                                <template v-slot:default>
+                                    <thead>
+                                        <tr>
+                                            <th class="text-left">
+                                                Id
+                                            </th>
+                                            <th class="text-left">
+                                                Status transaction catalog
+                                            </th>
+                                            <th class="text-left">
+                                                Create at
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in eventqueuelog" :key="item.id"
+                                            @click="watchMoreEventQueueLog(item)" style="cursor:pointer">
+                                            <td>{{ item.id }}</td>
+                                            <td>{{ item.status_transaction_catalog.name }}</td>
+                                            <td>{{ transformDate(item.created_at) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </template>
+                            </v-simple-table>
+                        </v-card>
                     </v-col>
                 </v-row>
                 <v-row no-gutters>
                     <v-col cols="12">
                         <v-data-table dense :headers="headers" :items="requestMoodleLog" item-key="name"
-                            class="elevation-1">
+                            class="elevation-0 my-3">
                             <template v-slot:[`item.payload`]="{ item }">
                                 <v-edit-dialog :return-value.sync="item.payload">
                                     <span class="d-inline-block text-truncate"
@@ -150,6 +168,7 @@
                         value: 'updated_at'
                     },
                 ],
+                reprocesing:false
             }
         },
         computed: {
@@ -192,6 +211,12 @@
             },
             transformDate(date) {
                 return moment.utc(date).format('DD/MM/YYYY h:mm:ss')
+            },
+            reprocesar(){
+                this.reprocesing = true
+                setTimeout(() => {
+                    this.reprocesing = false
+                }, 2000);
             }
         }
     }
