@@ -1,20 +1,20 @@
 <template>
   <v-container justify-center align-center fluid>
     <v-data-table :headers="headers" :items="events_receiving_queue" class="elevation-1">
-      <template v-slot:[`item.calories`]="{ item }">
-        <v-chip :color="getColor(item.calories)" dark>
-          {{ item.calories }}
-        </v-chip>
-      </template>
       <template v-slot:[`item.action`]="{ item }">
         <v-btn text small @click="viewMoreEventQueue(item)">
           Ver mas
         </v-btn>
       </template>
+      <template v-slot:[`item.created_at`]="{ item }">
+        {{transformDate(item.created_at)}}
+      </template>
       <template v-slot:[`item.processed_at`]="{ item }">
-        <p v-if="item.processed_at == null" class="ma-0 red--text">No procesado</p>
+        <v-chip color="error" dark v-if="item.processed_at == null">
+          No procesado
+        </v-chip>
         <p v-else class="ma-0">
-          {{item.processed_at}}
+          {{transformDate(item.processed_at)}}
         </p>
       </template>
     </v-data-table>
@@ -50,6 +50,7 @@
 </template>
 
 <script>
+  import moment from 'moment'
   import CountDown from 'count-time-down'
   import axios from 'axios'
   export default {
@@ -86,8 +87,8 @@
           }
         ],
         events_receiving_queue: [],
-        time_before:null,
-        reprocessing:false
+        time_before: null,
+        reprocessing: false
       }
     },
     components: {
@@ -99,7 +100,7 @@
       axios.post("http://192.168.0.79:3001/get_all_event_receiving_queue", body).then((res) => {
         this.events_receiving_queue = res.data
       })
-      new CountDown(864e5,(cd)=>{
+      new CountDown(864e5, (cd) => {
         this.time_before = cd.hhmmss
       })
     },
@@ -107,12 +108,15 @@
       viewMoreEventQueue(item) {
         this.$store.commit('altas_view_more_event_queue_selected', item)
       },
-      retry(){
+      retry() {
         this.reprocessing = true
         setTimeout(() => {
           this.reprocessing = false
         }, 2000);
-      }
+      },
+      transformDate(date) {
+        return moment.utc(date).format('DD/MM/YYYY h:mm:ss')
+      },
     }
   }
 </script>

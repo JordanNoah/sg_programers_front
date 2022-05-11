@@ -26,7 +26,7 @@
                     <v-col cols="6">
                         <div>
                             <p> Id: {{eventqueue != null ? eventqueue.id : ''}}</p>
-                            <p> Processed: {{eventqueue != null ? eventqueue.processed_at : ''}} </p>
+                            <p> Processed: {{eventqueue != null ? transformDate(eventqueue.processed_at) : ''}} </p>
                             <p> Attempts: {{eventqueue != null ? eventqueue.attempts : ''}} </p>
                             <p> Event: {{eventqueue != null ? eventqueue.event_name : ''}} </p>
                             <p> Status: {{eventqueue != null ? eventqueue.status_transaction_catalog.name : ''}} </p>

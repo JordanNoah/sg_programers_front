@@ -49,12 +49,18 @@
 
 <script>
 import io from 'socket.io-client'
+import axios from 'axios'
 export default {
   data: () => ({
   }),
   beforeCreate:function(){
     var socket = io("http://192.168.0.79:3001")
     this.$store.commit('saveSocket',socket)
+  },
+  mounted:function(){
+    axios.get("http://ubuntu20-04.ctdesarrollo.org/josue.ubilla/sign-up-user/").then((res)=>{
+      console.log(res);
+    })
   },
   methods:{
     changePage(page){
