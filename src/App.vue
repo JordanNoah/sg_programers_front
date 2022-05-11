@@ -16,11 +16,21 @@
             </v-chip>
           </div>
           <div>
-            <v-btn icon small :color="$store.state.socket.connected ? 'red' : ''">
-              <v-icon small>
-                fas fa-record-vinyl
-              </v-icon>
-            </v-btn>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn icon small v-bind="attrs" v-on="on" :color="$store.state.socket.connected ? 'red' : ''" @click="socketChangeStatus()">
+                  <v-icon>
+                    fas fa-record-vinyl
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span v-if="$store.state.socket.connected">
+                Conectados
+              </span>
+              <span v-else>
+                Fueras de linea
+              </span>
+            </v-tooltip>
           </div>
         </div>
       </v-app-bar>
@@ -33,7 +43,6 @@
 import io from 'socket.io-client'
 export default {
   data: () => ({
-
   }),
   beforeCreate:function(){
     var socket = io("http://192.168.0.79:3001")
@@ -45,6 +54,14 @@ export default {
     },
     closePage(page){
       this.$store.commit('removePage',page)
+    },
+    socketChangeStatus(){
+      var status = this.$store.state.socket.connected
+      if(status){
+        this.$store.state.socket.disconnect()
+      }else{
+        this.$store.state.socket.connect()
+      }
     }
   }
 }
