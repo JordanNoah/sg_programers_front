@@ -17,6 +17,17 @@
           {{transformDate(item.processed_at)}}
         </p>
       </template>
+      <template v-slot:[`item.status_transaction_catalog.name`]="{ item }">
+        <span v-if="item.status_transaction_catalog.abbreviation == 'ip'" class="yellow--text text--accent-4 font-weight-bold">
+          {{item.status_transaction_catalog.name}}
+        </span>
+        <span v-else-if="item.status_transaction_catalog.abbreviation == 'success'" class="light-green--text text--accent-3 font-weight-bold">
+          {{item.status_transaction_catalog.name}}
+        </span>
+        <span v-else class="red--text text--accent-3 font-weight-bold">
+          {{item.status_transaction_catalog.name}}
+        </span>
+      </template>
     </v-data-table>
     <v-menu>
       <template v-slot:activator="{ on: menu, attrs }">
@@ -98,6 +109,7 @@
       var body = new Object()
       body.database = 'moodle_4_api_ju'
       axios.post("http://192.168.0.79:3001/get_all_event_receiving_queue", body).then((res) => {
+        console.log(res.data);
         this.events_receiving_queue = res.data
       })
       new CountDown(864e5, (cd) => {
