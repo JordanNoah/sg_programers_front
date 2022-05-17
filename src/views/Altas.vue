@@ -115,6 +115,17 @@
       new CountDown(864e5, (cd) => {
         this.time_before = cd.hhmmss
       })
+      this.$store.state.socket.emit('client:altas_usuario')
+      this.$store.state.socket.on('server:altas_usuario',(body)=>{
+         const index = this.events_receiving_queue.findIndex( object => {
+          return object.id === body.id;
+        })
+        if (index < 0) {
+          this.events_receiving_queue.push(body)
+        }else{
+          this.events_receiving_queue.splice(index,1,body)
+        }
+      })
     },
     methods: {
       viewMoreEventQueue(item) {
