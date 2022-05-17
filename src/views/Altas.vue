@@ -1,6 +1,7 @@
 <template>
   <v-container justify-center align-center fluid>
-    <v-data-table :headers="headers" :items="events_receiving_queue" class="elevation-1">
+    <v-text-field v-model="search_alta" prepend-inner-icon="fab fa-searchengin" filled dense clearable label="Search"></v-text-field>
+    <v-data-table :headers="headers" :search="search_alta" :items="events_receiving_queue" class="elevation-1">
       <template v-slot:[`item.action`]="{ item }">
         <v-btn text small @click="viewMoreEventQueue(item)">
           Ver mas
@@ -89,7 +90,8 @@
           },
           {
             text: 'Status',
-            value: 'status_transaction_catalog.name'
+            value: 'status_transaction_catalog.name',
+            sortable: false
           },
           {
             text: '',
@@ -99,7 +101,8 @@
         ],
         events_receiving_queue: [],
         time_before: null,
-        reprocessing: false
+        reprocessing: false,
+        search_alta: null
       }
     },
     components: {

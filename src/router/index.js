@@ -25,7 +25,14 @@ const routes = [
   {
     path:'/altas',
     name:'altas',
-    component:Altas
+    component:Altas,
+    children:[
+      {
+        path:':id',
+        name:'altasId',
+        
+      }
+    ]
   },
   {
     path: '*',
