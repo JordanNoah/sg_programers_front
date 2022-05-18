@@ -106,6 +106,18 @@
         search_alta: null
       }
     },
+    computed:{
+      idEventQueue(){
+        return this.$store.state.altas_view_more_event_queue
+      }
+    },
+    watch:{
+      idEventQueue(newIdEvent){
+        if (newIdEvent == null) {
+          this.getEventReceivingQueue()
+        }
+      }
+    },
     components: {
       WatchMoreEventQueue: () => import('../components/WatchMoreEventQueue.vue')
     },
@@ -117,9 +129,7 @@
     mounted: function () {
       var body = new Object()
       body.database = 'moodle_4_api_ju'
-      axios.post("http://192.168.0.79:3001/get_all_event_receiving_queue", body).then((res) => {
-        this.events_receiving_queue = res.data
-      })
+      this.getEventReceivingQueue()
       new CountDown(864e5, (cd) => {
         this.time_before = cd.hhmmss
       })
@@ -136,15 +146,23 @@
       })
     },
     methods: {
+      getEventReceivingQueue(){
+        var body = new Object()
+        body.database = 'moodle_4_api_ju'
+        axios.post("http://192.168.0.79:3001/get_all_event_receiving_queue", body).then((res) => {
+          this.events_receiving_queue = res.data
+        })
+      },
       viewMoreEventQueue(item) {
         this.$router.push({name:'altas',params:{idEventQueue:item}}).then().catch(()=>{})
         this.$store.commit('altas_view_more_event_queue_selected', item)
       },
-      retry() {
+      async retry() {
         this.reprocessing = true
-        setTimeout(() => {
+        await axios.post("http://ubuntu20-04.ctdesarrollo.org/josue.ubilla/sign-up-user/manual_reprocess").then(()=>{
+          this.getEventReceivingQueue()
           this.reprocessing = false
-        }, 2000);
+        })
       },
       transformDate(date) {
         return moment.utc(date).format('DD/MM/YYYY h:mm:ss')

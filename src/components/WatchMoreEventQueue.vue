@@ -254,11 +254,14 @@
             transformDate(date) {
                 return moment.utc(date).format('DD/MM/YYYY h:mm:ss')
             },
-            reprocesar() {
+            async reprocesar() {
                 this.reprocesing = true
-                setTimeout(() => {
-                    this.reprocesing = false
-                }, 2000);
+                var body = new Object()
+                body.ideventqueue = this.$store.state.altas_view_more_event_queue
+                await axios.post('http://ubuntu20-04.ctdesarrollo.org/josue.ubilla/sign-up-user/manual_reprocess',body)
+                this.reprocesing = false
+                this.getEventQueue()
+                this.getEventQueueLog()
             }
         }
     }
