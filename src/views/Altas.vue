@@ -112,16 +112,12 @@
     created: function(){
       if (this.$route.params.idEventQueue) {
         this.viewMoreEventQueue(this.$route.params.idEventQueue)
-        console.log("tengo id");
-      }else{
-        console.log("no tengo id")
       }
     },
     mounted: function () {
       var body = new Object()
       body.database = 'moodle_4_api_ju'
       axios.post("http://192.168.0.79:3001/get_all_event_receiving_queue", body).then((res) => {
-        console.log(res.data);
         this.events_receiving_queue = res.data
       })
       new CountDown(864e5, (cd) => {

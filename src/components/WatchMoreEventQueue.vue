@@ -25,15 +25,15 @@
                 <v-row justify="space-between">
                     <v-col cols="6">
                         <div>
-                            <!-- <p> Id: {{eventqueue != null ? eventqueue : ''}}</p>
-                            <p> Processed: {{eventqueue != null ? transformDate(eventqueue.processed_at) : ''}} </p>
-                            <p> Attempts: {{eventqueue != null ? eventqueue.attempts : ''}} </p>
-                            <p> Event: {{eventqueue != null ? eventqueue.event_name : ''}} </p>
-                            <p> Status: {{eventqueue != null ? eventqueue.status_transaction_catalog.name : ''}} </p>
-                            <p> Created at: {{ eventqueue != null ? transformDate(eventqueue.created_at) : ''}} </p>
-                            <p> Updated at: {{ eventqueue != null ? transformDate(eventqueue.updated_at) : ''}} </p>
+                            <p> Id: {{eventqueueInfo != null ? eventqueueInfo.id : ''}}</p>
+                            <p> Processed: {{eventqueueInfo != null ? transformDate(eventqueueInfo.processed_at) : ''}} </p>
+                            <p> Attempts: {{eventqueueInfo != null ? eventqueueInfo.attempts : ''}} </p>
+                            <p> Event: {{eventqueueInfo != null ? eventqueueInfo.event_name : ''}} </p>
+                            <p> Status: {{eventqueueInfo != null ? eventqueueInfo.status_transaction_catalog.name : ''}} </p>
+                            <p> Created at: {{ eventqueueInfo != null ? transformDate(eventqueueInfo.created_at) : ''}} </p>
+                            <p> Updated at: {{ eventqueueInfo != null ? transformDate(eventqueueInfo.updated_at) : ''}} </p>
                             <v-textarea v-model="eventqueueRecivedData" filled label="Two rows" rows="3" single-line
-                                row-height="20" hide-details></v-textarea> -->
+                                row-height="20" hide-details></v-textarea>
                         </div>
                     </v-col>
                     <v-col cols="6">
@@ -128,6 +128,7 @@
     export default {
         data() {
             return {
+                eventqueueInfo:null,
                 eventqueuelog: [],
                 requestMoodleLog: [],
                 headers: [{
@@ -178,9 +179,8 @@
             eventqueue() {
                 return this.$store.state.altas_view_more_event_queue
             },
-            eventqueueRecivedData() {
-                return this.$store.state.altas_view_more_event_queue != null ? JSON.stringify(this.$store.state
-                    .altas_view_more_event_queue.received_data) : ''
+            eventqueueRecivedData(){
+                return JSON.stringify(this.eventqueueInfo.received_data)
             }
         },
         watch: {
@@ -188,9 +188,25 @@
                 if (newValue) {
                     this.getEventQueueLog()
                 }
+            },
+            eventqueue(newData){
+                console.log(newData);
+            }
+        },
+        mounted:function(){
+            if(this.$store.state.altas_view_more_event_queue != null){
+                this.getEventQueue()
+                this.getEventQueueLog()
             }
         },
         methods: {
+            getEventQueue(){
+                var body = new Object()
+                body.eventqueueid = this.$store.state.altas_view_more_event_queue
+                axios.post('http://192.168.0.79:3001/get_event_receiving_queue_by_id', body).then((res) => {
+                    this.eventqueueInfo = res.data
+                })
+            },
             getEventQueueLog() {
                 var body = new Object()
                 body.eventqueueid = this.$store.state.altas_view_more_event_queue
