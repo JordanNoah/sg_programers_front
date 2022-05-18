@@ -3,7 +3,7 @@
         <v-card>
             <v-card-title class="text-h5 d-flex justify-space-between">
                 <div>
-                    Event queue id:{{eventqueue != null ? eventqueue.id : ''}}
+                    Event queue id:{{eventqueue != null ? eventqueue : ''}}
                 </div>
                 <div>
                     <v-tooltip left>
@@ -25,7 +25,7 @@
                 <v-row justify="space-between">
                     <v-col cols="6">
                         <div>
-                            <p> Id: {{eventqueue != null ? eventqueue.id : ''}}</p>
+                            <!-- <p> Id: {{eventqueue != null ? eventqueue : ''}}</p>
                             <p> Processed: {{eventqueue != null ? transformDate(eventqueue.processed_at) : ''}} </p>
                             <p> Attempts: {{eventqueue != null ? eventqueue.attempts : ''}} </p>
                             <p> Event: {{eventqueue != null ? eventqueue.event_name : ''}} </p>
@@ -33,7 +33,7 @@
                             <p> Created at: {{ eventqueue != null ? transformDate(eventqueue.created_at) : ''}} </p>
                             <p> Updated at: {{ eventqueue != null ? transformDate(eventqueue.updated_at) : ''}} </p>
                             <v-textarea v-model="eventqueueRecivedData" filled label="Two rows" rows="3" single-line
-                                row-height="20" hide-details></v-textarea>
+                                row-height="20" hide-details></v-textarea> -->
                         </div>
                     </v-col>
                     <v-col cols="6">
@@ -193,14 +193,14 @@
         methods: {
             getEventQueueLog() {
                 var body = new Object()
-                body.eventqueueid = this.$store.state.altas_view_more_event_queue.id
+                body.eventqueueid = this.$store.state.altas_view_more_event_queue
                 axios.post('http://192.168.0.79:3001/get_all_event_receiving_queue_log', body).then((res) => {
                     this.eventqueuelog = res.data
                 })
             },
             watchMoreEventQueueLog(eventQueueLog) {
                 var body = new Object()
-                body.eventqueue = this.$store.state.altas_view_more_event_queue.id
+                body.eventqueue = this.$store.state.altas_view_more_event_queue
                 body.eventqueuelog = eventQueueLog.id
                 axios.post('http://192.168.0.79:3001/get_all_request_to_moodle_log', body).then((res) => {
                     this.requestMoodleLog = res.data

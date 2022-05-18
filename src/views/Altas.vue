@@ -3,7 +3,7 @@
     <v-text-field v-model="search_alta" prepend-inner-icon="fab fa-searchengin" filled dense clearable label="Search"></v-text-field>
     <v-data-table :headers="headers" :search="search_alta" :items="events_receiving_queue" class="elevation-1">
       <template v-slot:[`item.action`]="{ item }">
-        <v-btn text small @click="viewMoreEventQueue(item)">
+        <v-btn text small @click="viewMoreEventQueue(item.id)">
           Ver mas
         </v-btn>
       </template>
@@ -58,6 +58,7 @@
       </v-card>
     </v-menu>
     <WatchMoreEventQueue />
+    <router-view></router-view>
   </v-container>
 </template>
 
@@ -107,6 +108,14 @@
     },
     components: {
       WatchMoreEventQueue: () => import('../components/WatchMoreEventQueue.vue')
+    },
+    created: function(){
+      if (this.$route.params.idEventQueue) {
+        this.viewMoreEventQueue(this.$route.params.idEventQueue)
+        console.log("tengo id");
+      }else{
+        console.log("no tengo id")
+      }
     },
     mounted: function () {
       var body = new Object()

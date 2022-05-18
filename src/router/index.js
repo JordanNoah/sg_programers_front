@@ -23,16 +23,9 @@ const routes = [
     component:Wsfunction
   },
   {
-    path:'/altas',
+    path:'/altas/:idEventQueue(\\d+)?',
     name:'altas',
-    component:Altas,
-    children:[
-      {
-        path:':id',
-        name:'altasId',
-        
-      }
-    ]
+    component:Altas
   },
   {
     path: '*',
