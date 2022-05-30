@@ -53,7 +53,7 @@ export default {
   data: () => ({
   }),
   beforeCreate:function(){
-    var socket = io("http://192.168.0.79:3001")
+    var socket = io("http://192.168.0.135:3001")
     this.$store.commit('saveSocket',socket)
   },
   methods:{

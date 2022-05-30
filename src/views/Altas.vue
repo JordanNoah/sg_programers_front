@@ -1,6 +1,7 @@
 <template>
   <v-container justify-center align-center fluid>
-    <v-text-field v-model="search_alta" prepend-inner-icon="fab fa-searchengin" filled dense clearable label="Search"></v-text-field>
+    <v-text-field v-model="search_alta" prepend-inner-icon="fab fa-searchengin" filled dense clearable label="Search">
+    </v-text-field>
     <v-data-table :headers="headers" :search="search_alta" :items="events_receiving_queue" class="elevation-1">
       <template v-slot:[`item.action`]="{ item }">
         <v-btn text small @click="viewMoreEventQueue(item.id)">
@@ -19,10 +20,12 @@
         </p>
       </template>
       <template v-slot:[`item.status_transaction_catalog.name`]="{ item }">
-        <span v-if="item.status_transaction_catalog.abbreviation == 'ip'" class="yellow--text text--accent-4 font-weight-bold">
+        <span v-if="item.status_transaction_catalog.abbreviation == 'ip'"
+          class="yellow--text text--accent-4 font-weight-bold">
           {{item.status_transaction_catalog.name}}
         </span>
-        <span v-else-if="item.status_transaction_catalog.abbreviation == 'success'" class="light-green--text text--accent-3 font-weight-bold">
+        <span v-else-if="item.status_transaction_catalog.abbreviation == 'success'"
+          class="light-green--text text--accent-3 font-weight-bold">
           {{item.status_transaction_catalog.name}}
         </span>
         <span v-else class="red--text text--accent-3 font-weight-bold">
@@ -34,7 +37,8 @@
       <template v-slot:activator="{ on: menu, attrs }">
         <v-tooltip right>
           <template v-slot:activator="{ on: tooltip }">
-            <v-btn fixed fab small bottom left color="primary" v-on="{...tooltip, ...menu}" v-bind="attrs" :class="reprocessing ? 'fa-spin':''">
+            <v-btn fixed fab small bottom left color="primary" v-on="{...tooltip, ...menu}" v-bind="attrs"
+              :class="reprocessing ? 'fa-spin':''">
               <v-icon>
                 fas fa-redo-alt
               </v-icon>
@@ -58,7 +62,12 @@
       </v-card>
     </v-menu>
     <WatchMoreEventQueue />
-    <router-view></router-view>
+    <v-snackbar :timeout="-1" :value="true" right outlined color="transparent">
+      <v-alert outlined type="warning" elevation="0" border="left" dense v-for="key in alerts" :key="key.id" transition="scroll-x-reverse-transition">
+        Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Suspendisse non nisl sit amet velit
+        hendrerit rutrum. Nullam vel sem. Pellentesque dapibus hendrerit tortor.
+      </v-alert>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -100,10 +109,12 @@
             sortable: false
           }
         ],
+        snackbar:true,
         events_receiving_queue: [],
         time_before: null,
         reprocessing: false,
-        search_alta: null
+        search_alta: null,
+        alerts:[]
       }
     },
     computed:{
@@ -144,12 +155,19 @@
           this.events_receiving_queue.splice(index,1,body)
         }
       })
+      setInterval(() => {
+        if (this.alerts.length < 5) {
+          var objToPush = new Object()
+          objToPush.id = (Math.random() * (1000 - 1) + 1).toFixed(0);
+          this.alerts.push(objToPush)
+        }
+      }, 1000);
     },
     methods: {
       getEventReceivingQueue(){
         var body = new Object()
         body.database = 'moodle_4_api_ju'
-        axios.post("http://192.168.0.79:3001/get_all_event_receiving_queue", body).then((res) => {
+        axios.post("http://192.168.0.135:3001/get_all_event_receiving_queue", body).then((res) => {
           this.events_receiving_queue = res.data
         })
       },

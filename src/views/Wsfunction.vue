@@ -130,7 +130,7 @@
             }
         },
         mounted: function () {
-            axios.post("http://192.168.0.79:3001/organization").then((res) => {
+            axios.post("http://192.168.0.135:3001/organization").then((res) => {
                 this.$store.commit('wsfunction_databases_exist', res.data)
             })
             this.$store.state.socket.on('server:add_mdl_external_services_functions', (body) => {
@@ -181,7 +181,7 @@
                 if (this.database != null) {
                     var body = new Object();
                     body.database = this.database;
-                    var response = await axios.post('http://192.168.0.79:3001/check_database', body);
+                    var response = await axios.post('http://192.168.0.135:3001/check_database', body);
                     if (response.data == "connected") {
                         this.$store.commit('database_connected', this.database);
                         this.getFuntionList();
@@ -193,7 +193,7 @@
             async getFuntionList() {
                 var body = new Object();
                 body.database = this.$store.state.wsfunction_database_name;
-                var response = await axios.post('http://192.168.0.79:3001/getFuntionList', body);
+                var response = await axios.post('http://192.168.0.135:3001/getFuntionList', body);
                 this.$store.commit('recived_external_service', response.data)
 
             },
@@ -217,7 +217,7 @@
                     body.id = this.$store.state.wsfunction_external_service_selected.id
                     body.database = this.$store.state.wsfunction_database_name
                     body.socket = this.$store.state.socket.id
-                    axios.post(`http://192.168.0.79:3001/get_all_result`, body).then((response) => {
+                    axios.post(`http://192.168.0.135:3001/get_all_result`, body).then((response) => {
                         this.$store.commit('recived_external_functions', response.data)
                         this.totalServices = response.data.length
                         this.loading = false

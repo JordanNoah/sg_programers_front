@@ -224,14 +224,15 @@
             getEventQueue() {
                 var body = new Object()
                 body.eventqueueid = this.$store.state.altas_view_more_event_queue
-                axios.post('http://192.168.0.79:3001/get_event_receiving_queue_by_id', body).then((res) => {
+                axios.post('http://192.168.0.135:3001/get_event_receiving_queue_by_id', body).then((res) => {
+                    console.log(res);
                     this.eventqueueInfo = res.data
                 })
             },
             getEventQueueLog() {
                 var body = new Object()
                 body.eventqueueid = this.$store.state.altas_view_more_event_queue
-                axios.post('http://192.168.0.79:3001/get_all_event_receiving_queue_log', body).then((res) => {
+                axios.post('http://192.168.0.135:3001/get_all_event_receiving_queue_log', body).then((res) => {
                     this.eventqueuelog = res.data
                 })
             },
@@ -239,7 +240,7 @@
                 var body = new Object()
                 body.eventqueue = this.$store.state.altas_view_more_event_queue
                 body.eventqueuelog = eventQueueLog.id
-                axios.post('http://192.168.0.79:3001/get_all_request_to_moodle_log', body).then((res) => {
+                axios.post('http://192.168.0.135:3001/get_all_request_to_moodle_log', body).then((res) => {
                     this.requestMoodleLog = res.data
                 })
                 this.watchMoreEventQueueLogId = eventQueueLog.id
