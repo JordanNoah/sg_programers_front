@@ -26,7 +26,8 @@
             </v-btn>
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-btn icon small v-bind="attrs" v-on="on" :color="$store.state.socket.connected ? 'red' : ''" @click="socketChangeStatus()">
+                <v-btn icon small v-bind="attrs" v-on="on" :color="$store.state.socket.connected ? 'red' : ''"
+                  @click="socketChangeStatus()">
                   <v-icon>
                     fas fa-record-vinyl
                   </v-icon>

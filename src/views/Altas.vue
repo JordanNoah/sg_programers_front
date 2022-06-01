@@ -1,8 +1,18 @@
 <template>
-  <v-container justify-center align-center fluid>
+  <div>
+    <v-system-bar color="warning" style="height: 24px; position: fixed; width: 100%; bottom: 0;z-index: 99;">
+        <v-icon @click="retry()" :class="reprocessing?'fa-spin':''">fas fa-redo-alt</v-icon>
+        <div style="width:inherit" class="d-flex justify-end">
+          <div v-for="(statusTransaction,index) in statusTransactionCatalogs " :key="statusTransaction.id" class="d-flex">
+            <QuickAltasInfo :statusTransactionCatalog="statusTransaction"></QuickAltasInfo>
+            <v-divider vertical v-if="index < statusTransactionCatalogs.length-1"></v-divider>
+          </div>
+        </div>
+      </v-system-bar>
+    <v-container justify-center align-center fluid>
     <v-text-field v-model="search_alta" prepend-inner-icon="fab fa-searchengin" filled dense clearable label="Search">
     </v-text-field>
-    <v-data-table :headers="headers" :search="search_alta" :items="events_receiving_queue" class="elevation-1">
+    <v-data-table :headers="headers" :search="search_alta" :items="events_receiving_queue" class="elevation-1 mb-5">
       <template v-slot:[`item.action`]="{ item }">
         <v-btn text small @click="viewMoreEventQueue(item.id)">
           Ver mas
@@ -33,7 +43,7 @@
         </span>
       </template>
     </v-data-table>
-    <v-menu>
+    <!-- <v-menu>
       <template v-slot:activator="{ on: menu, attrs }">
         <v-tooltip right>
           <template v-slot:activator="{ on: tooltip }">
@@ -60,15 +70,16 @@
           </v-btn>
         </v-card-actions>
       </v-card>
-    </v-menu>
+    </v-menu> -->
     <WatchMoreEventQueue />
-    <v-snackbar :timeout="-1" :value="true" right outlined color="transparent">
+    <v-snackbar :timeout="-1" :value="false" right outlined color="transparent">
       <v-alert outlined type="warning" elevation="0" border="left" dense v-for="key in alerts" :key="key.id" transition="scroll-x-reverse-transition">
         Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Suspendisse non nisl sit amet velit
         hendrerit rutrum. Nullam vel sem. Pellentesque dapibus hendrerit tortor.
       </v-alert>
     </v-snackbar>
   </v-container>
+  </div>
 </template>
 
 <script>
@@ -114,7 +125,8 @@
         time_before: null,
         reprocessing: false,
         search_alta: null,
-        alerts:[]
+        alerts:[],
+        statusTransactionCatalogs:null
       }
     },
     computed:{
@@ -130,7 +142,8 @@
       }
     },
     components: {
-      WatchMoreEventQueue: () => import('../components/WatchMoreEventQueue.vue')
+      WatchMoreEventQueue: () => import('../components/WatchMoreEventQueue.vue'),
+      QuickAltasInfo: () => import('../components/QuickAltasInfo.vue')
     },
     created: function(){
       if (this.$route.params.idEventQueue) {
@@ -154,6 +167,9 @@
         }else{
           this.events_receiving_queue.splice(index,1,body)
         }
+      })
+      axios.post("http://192.168.0.135:3001/get_status_transaction_catalog").then((res)=>{
+        this.statusTransactionCatalogs = res.data
       })
       setInterval(() => {
         if (this.alerts.length < 5) {

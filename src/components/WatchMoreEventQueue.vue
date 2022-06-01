@@ -259,7 +259,7 @@
                 this.reprocesing = true
                 var body = new Object()
                 body.ideventqueue = this.$store.state.altas_view_more_event_queue
-                await axios.post('http://ubuntu20-04.ctdesarrollo.org/josue.ubilla/sign-up-user/manual_reprocess',body)
+                await axios.post('http://192.168.0.135/jordan-ubilla/altas/manual-reprocess',body)
                 this.reprocesing = false
                 this.getEventQueue()
                 this.getEventQueueLog()
