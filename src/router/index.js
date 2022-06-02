@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Wsfunction from '../views/Wsfunction.vue'
 import Altas from '../views/Altas.vue'
+import AltasRecord from '../views/AltasRecords.vue'
+import AltasOrganization from '../views/AltasOrganizations.vue'
 import Store from '../store'
 
 Vue.use(VueRouter)
@@ -23,9 +25,22 @@ const routes = [
     component:Wsfunction
   },
   {
-    path:'/altas/:idEventQueue(\\d+)?',
+    path:'/altas',
     name:'altas',
-    component:Altas
+    component:Altas,
+    redirect:'/altas/main',
+    children:[
+      {
+        path:'main/:idEventQueue(\\d+)?',
+        name:'mainAltas',
+        component:AltasRecord
+      },
+      {
+        path:'organizations/:idOrganization(\\d+)?',
+        name:'organizationsAltas',
+        component:AltasOrganization
+      }
+    ]
   },
   {
     path: '*',
