@@ -13,6 +13,7 @@
       <v-tabs>
         <v-tab to="/altas/main">Altas</v-tab>
         <v-tab to="/altas/organizations">Organizaciones</v-tab>
+        <v-tab to="/altas/message">Messages</v-tab>
       </v-tabs>
 
     <router-view></router-view>

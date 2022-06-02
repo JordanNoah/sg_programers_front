@@ -5,6 +5,7 @@ import Wsfunction from '../views/Wsfunction.vue'
 import Altas from '../views/Altas.vue'
 import AltasRecord from '../views/AltasRecords.vue'
 import AltasOrganization from '../views/AltasOrganizations.vue'
+import AltasMessage from '../views/AltasMessage.vue'
 import Store from '../store'
 
 Vue.use(VueRouter)
@@ -39,6 +40,11 @@ const routes = [
         path:'organizations/:idOrganization(\\d+)?',
         name:'organizationsAltas',
         component:AltasOrganization
+      },
+      {
+        path:'message',
+        name:'messageAltas',
+        component:AltasMessage
       }
     ]
   },

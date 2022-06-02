@@ -160,7 +160,7 @@
         })
       },
       viewMoreEventQueue(item) {
-        this.$router.push({name:'altas',params:{idEventQueue:item}}).then().catch(()=>{})
+        this.$router.push({name:'mainAltas',params:{idEventQueue:item}}).then().catch(()=>{})
         this.$store.commit('altas_view_more_event_queue_selected', item)
       },
       async retry() {
