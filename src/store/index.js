@@ -47,7 +47,15 @@ export default new Vuex.Store({
     },
     addPage(state, page){
       if(!(state.pageOpen.some(pages => pages.name === page.name)) && page.name != 'home' && page.name != 'main'){
-        state.pageOpen.push(page);
+        if(page.matched[0].name == 'altas'){
+          if(!(state.pageOpen.some(pages => pages.name === page.matched[0].name))){
+            state.pageOpen.push(page.matched[0]);
+          }
+        }else{
+          state.pageOpen.push(page);
+        }
+        console.log();
+        
       }
     },
     removePage(state, page){

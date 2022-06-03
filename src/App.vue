@@ -10,7 +10,7 @@
               </v-icon>
             </v-chip>
             <v-chip v-for="page in $store.state.pageOpen" :key="page.title" label link close class="mx-1"
-              :color="$route.name == page.name ? 'primary' : ''" @click="changePage(page.name)"
+              :color="$route.name == page.name || $route.matched[0].name == page.name ? 'primary' : ''" @click="changePage(page.name)"
               @click:close="closePage(page)">
               {{page.name}}
             </v-chip>
