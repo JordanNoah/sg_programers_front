@@ -147,9 +147,6 @@
           this.events_receiving_queue.splice(index,1,body)
         }
       })
-      axios.post("http://192.168.0.135:3001/get_status_transaction_catalog").then((res)=>{
-        this.statusTransactionCatalogs = res.data
-      })
     },
     methods: {
       getEventReceivingQueue(){

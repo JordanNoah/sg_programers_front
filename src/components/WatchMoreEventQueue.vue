@@ -225,7 +225,6 @@
                 var body = new Object()
                 body.eventqueueid = this.$store.state.altas_view_more_event_queue
                 axios.post('http://192.168.0.135:3001/get_event_receiving_queue_by_id', body).then((res) => {
-                    console.log(res);
                     this.eventqueueInfo = res.data
                 })
             },

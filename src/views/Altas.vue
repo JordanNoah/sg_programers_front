@@ -29,6 +29,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   data() {
     return{
@@ -39,6 +40,11 @@ export default {
   },
   components:{
     QuickAltasInfo: () => import('../components/QuickAltasInfo.vue')
+  },
+  mounted:function(){
+    axios.post("http://192.168.0.135:3001/get_status_transaction_catalog").then((res)=>{
+        this.statusTransactionCatalogs = res.data
+      })
   }
 }
 </script>
