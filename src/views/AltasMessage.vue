@@ -5,59 +5,29 @@
                 <v-btn text small @click="dialog = !dialog"> Añadir email </v-btn>
             </v-col>
             <v-col cols="12">
-                <v-simple-table>
-                    <template v-slot:default>
-                        <thead>
-                            <tr>
-                                <th class="text-left">
-                                    Id
-                                </th>
-                                <th class="text-left">
-                                    Reason
-                                </th>
-                                <th class="text-left">
-                                    Email
-                                </th>
-                                <th class="text-left">
-                                    Params
-                                </th>
-                                <th class="text-center">
-                                    Activated
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(item,index) in emails" :key="item.name">
-                                <td>{{ item.id }}</td>
-                                <td>{{ item.reason }}</td>
-                                <td>{{ item.email }}</td>
-                                <td>{{ item.params }}</td>
-                                <td class="text-center">
-                                    <v-btn icon small @click="actionMail(item.id,index)"
-                                        :color="item.activate ? 'success':''">
-                                        <v-icon small>mdi-gmail</v-icon>
-                                    </v-btn>
-                                    <v-btn icon small @click="updateEmail(item)">
-                                        <v-icon small>
-                                            mdi-pencil
-                                        </v-icon>
-                                    </v-btn>
-                                    <v-btn icon small @click="removeEmail(item)">
-                                        <v-icon small>
-                                            mdi-delete
-                                        </v-icon>
-                                    </v-btn>
-                                </td>
-                            </tr>
-                        </tbody>
+                <v-data-table :headers="headers" :items="emails" dense>
+                    <template v-slot:[`item.actions`]="{ item, index }">
+                        <v-btn icon small @click="actionMail(item.id,index)" :color="item.activate ? 'success':''">
+                            <v-icon small>mdi-gmail</v-icon>
+                        </v-btn>
+                        <v-btn icon small @click="updateEmail(item)">
+                            <v-icon small>
+                                mdi-pencil
+                            </v-icon>
+                        </v-btn>
+                        <v-btn icon small @click="removeEmail(item)">
+                            <v-icon small>
+                                mdi-delete
+                            </v-icon>
+                        </v-btn>
                     </template>
-                </v-simple-table>
+                </v-data-table>
             </v-col>
         </v-row>
         <v-dialog v-model="dialog" max-width="450" @click:outside="resetEmail()">
             <v-card>
                 <v-card-title>
-                    <span class="text-h5">User Profile</span>
+                    <span class="text-h5">Messages</span>
                 </v-card-title>
                 <v-card-text>
                     <v-container>
@@ -66,15 +36,17 @@
                                 <v-text-field v-model="message_config.reason" label="Rason*" required></v-text-field>
                             </v-col>
                             <v-col cols="12">
-                                <v-text-field v-model="message_config.email" label="Email*" hint="example of helper text only on focus" required>
+                                <v-text-field v-model="message_config.email" label="Email*"
+                                    hint="example of helper text only on focus" required>
                                 </v-text-field>
                             </v-col>
                             <v-col cols="12">
-                                <v-text-field v-model="message_config.params" label="Parametros" hint="example of persistent helper text"
-                                    persistent-hint></v-text-field>
+                                <v-text-field v-model="message_config.params" label="Parametros"
+                                    hint="example of persistent helper text" persistent-hint></v-text-field>
                             </v-col>
                             <v-col cols="12">
-                                <v-switch v-model="message_config.activate" inset :label="`${message_config.activate ? 'Enviar email':'No enviar email'}`"></v-switch>
+                                <v-switch v-model="message_config.activate" inset
+                                    :label="`${message_config.activate ? 'Enviar email':'No enviar email'}`"></v-switch>
                             </v-col>
                         </v-row>
                     </v-container>
@@ -100,90 +72,116 @@
 <script>
 import axios from 'axios'
 export default {
-    data(){
+    data() {
         return {
-            emails:null,
-            dialog:false,
-            message_config:{
-                reason:'',
-                email:'',
-                params:'',
-                activate:false
+            emails: [],
+            dialog: false,
+            headers: [{
+                    text: 'Id',
+                    align: 'start',
+                    value: 'id'
+                },
+                {
+                    text: 'Reason',
+                    align: 'start',
+                    value: 'reason'
+                },
+                {
+                    text: 'Email',
+                    align: 'start',
+                    value: 'email'
+                },
+                {
+                    text: 'Params',
+                    align: 'start',
+                    value: 'params'
+                },
+                {
+                    text: 'Actions',
+                    value: 'actions',
+                    sortable: false
+                }
+            ],
+            message_config: {
+                reason: '',
+                email: '',
+                params: '',
+                activate: false
             }
         }
     },
-    mounted:function(){
+    mounted: function () {
         this.getEmails()
     },
-    methods:{
-        getEmails(){
-            axios.post("http://192.168.0.135:3001/get_emails").then((res)=>{
+    methods: {
+        getEmails() {
+            axios.post("http://192.168.0.135:3001/get_emails").then((res) => {
                 this.emails = res.data
             })
         },
-        actionMail(idMail,index){
+        actionMail(idMail, index) {
             var body = new Object()
             body.id_mail = idMail
-            axios.post("http://192.168.0.135:3001/activate_email",body).then((res)=>{
-                if(res.data.status){
+            axios.post("http://192.168.0.135:3001/activate_email", body).then((res) => {
+                if (res.data.status) {
                     this.emails[index]["activate"] = !this.emails[index]["activate"]
                 }
             })
         },
-        saveEmail(){
+        saveEmail() {
             var body = new Object()
             body.mail_config = this.message_config;
-            axios.post("http://192.168.0.135:3001/create_mail_config",body).then((res)=>{
+            axios.post("http://192.168.0.135:3001/create_mail_config", body).then((res) => {
                 var findObject = this.emails.findIndex(x => x.id === res.data.id);
-                if(findObject == -1){
+                if (findObject == -1) {
                     this.emails.push(res.data)
-                }else{
-                    this.emails.splice(findObject,1,res.data)
+                } else {
+                    this.emails.splice(findObject, 1, res.data)
                 }
                 this.resetEmail()
                 this.dialog = false
             })
         },
-        update(){
+        update() {
             var body = new Object()
             body.mail_config = this.message_config;
-            axios.post("http://192.168.0.135:3001/update_mail_by_id",body).then((res)=>{
+            axios.post("http://192.168.0.135:3001/update_mail_by_id", body).then((res) => {
                 var findObject = this.emails.findIndex(x => x.id === res.data.id);
-                if(findObject == -1){
+                if (findObject == -1) {
                     this.emails.push(res.data)
-                }else{
-                    this.emails.splice(findObject,1,res.data)
+                } else {
+                    this.emails.splice(findObject, 1, res.data)
                 }
                 this.resetEmail()
                 this.dialog = false
             })
         },
-        removeEmail(item){
+        removeEmail(item) {
             var body = new Object()
             body.mail_config = item
-            axios.post("http://192.168.0.135:3001/remove_mail_by_id",body).then((res)=>{
+            axios.post("http://192.168.0.135:3001/remove_mail_by_id", body).then((res) => {
                 var findObject = this.emails.findIndex(x => x.id === item.id);
                 if (res.data.status) {
-                    this.emails.splice(findObject,1)
+                    this.emails.splice(findObject, 1)
                 }
             })
         },
-        updateEmail(email){
+        updateEmail(email) {
             this.message_config = {
-                id:email.id,
-                reason:email.reason,
-                email:email.email,
-                params:JSON.stringify(email.params),
-                activate:email.activate
+                id: email.id,
+                reason: email.reason,
+                email: email.email,
+                params: JSON.stringify(email.params),
+                activate: email.activate
             }
             this.dialog = true
         },
-        resetEmail(){
+        resetEmail() {
             this.message_config = {
-                reason:'',
-                email:'',
-                params:'',
-                activate:false
+                reason: '',
+                email: '',
+                params: '',
+                activate: false
             }
         }
     }
